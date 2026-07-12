@@ -34,30 +34,27 @@
 <!-- Modal -->
 <div id="infoModal" class="modal">
   <div class="modal-content">
-    <!-- Close button -->
+    <!-- Close button sa kanan -->
     <span class="close">&times;</span>
 
-    <!-- Header -->
-    <h2 id="modalTitle"></h2>
-
-    <!-- Metadata -->
-    <div class="modal-meta">
+    <!-- Metadata block -->
+    <div id="modalMeta" class="modal-meta">
+      <h2 id="modalTitle"></h2>
       <p><strong>Reference #:</strong> <span id="modalRef"></span></p>
       <p><strong>Author:</strong> <span id="modalAuthor"></span></p>
       <p><strong>Date Adopted:</strong> <span id="modalDate"></span></p>
       <p><strong>Status:</strong> <span id="modalStatus"></span></p>
     </div>
 
-    <!-- PDF Preview -->
-    <div id="modalPreview">
-      <!-- Option A: Embed (better for mobile) -->
-      <embed id="pdfEmbed" src="" type="application/pdf" width="100%" height="500px" style="border:none;">
-
-      <!-- Fallback link -->
-      <p class="preview-link">
-        <a id="pdfLink" href="#" target="_blank">Open full document</a>
-      </p>
+    <!-- PDF Preview block -->
+    <div id="modalPdf" class="modal-pdf">
+      <div id="modalPreview"><!-- PDF.js will inject canvas here --></div>
     </div>
+
+    <!-- Fallback link nasa labas ng PDF preview -->
+    <p class="preview-link">
+      <a id="pdfLink" href="#" target="_blank">Open full document</a>
+    </p>
   </div>
 </div>
 
@@ -66,6 +63,13 @@
 <footer>
   <p>&copy; 2026 Municipality of Magsaysay. All rights reserved.</p>
 </footer>
+
+<!-- PDF.js ES Module build -->
+<script type="module">
+  import * as pdfjsLib from './js/pdf.mjs';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.mjs';
+  window.pdfjsLib = pdfjsLib;
+</script>
 
 <!-- Scroll top button -->
 <button class="scroll-top">Top</button>

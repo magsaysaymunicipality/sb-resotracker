@@ -1,3 +1,8 @@
+// === Imports & Setup ===
+import * as pdfjsLib from './pdf.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.mjs';
+
+// === DOM Elements ===
 const searchInput = document.getElementById("searchInput");
 const clearBtn = document.querySelector(".clear-btn");
 const cardsGrid = document.getElementById("cardsGrid");
@@ -12,7 +17,33 @@ const modalStatus = document.getElementById("modalStatus");
 
 let resolutions = [];
 
-// Load JSON (auto-detect current month/year)
+// === PDF.js Renderer ===
+function renderPDF(url) {
+  const container = document.getElementById("modalPreview");
+  container.innerHTML = ""; // clear old content
+
+  pdfjsLib.getDocument({ url, disableStream: true }).promise.then(pdf => {
+    // loop through all pages
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      pdf.getPage(pageNum).then(page => {
+        const viewport = page.getViewport({ scale: 1.0 });
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        container.appendChild(canvas);
+
+        page.render({ canvasContext: ctx, viewport });
+      });
+    }
+  }).catch(err => {
+    container.innerHTML = `<p class="no-preview">Cannot preview PDF: ${err.message}</p>`;
+  });
+}
+
+// === Load JSON (auto-detect current month/year) ===
 async function loadResolutions() {
   const months = [
     "01-january","02-february","03-march","04-april",
@@ -24,8 +55,7 @@ async function loadResolutions() {
   const currentYear = now.getFullYear();
   let found = false;
 
-  // Loop mula current year pababa (halimbawa 2026 → 2025 → 2024)
-  for (let year = currentYear; year >= 2020 && !found; year--) { // adjust 2020 kung hanggang saan gusto mo
+  for (let year = currentYear; year >= 2020 && !found; year--) {
     for (let i = 0; i < months.length && !found; i++) {
       const monthFile = months[i];
       try {
@@ -50,7 +80,7 @@ async function loadResolutions() {
   }
 }
 
-// Render cards
+// === Render cards ===
 function renderCards(data) {
   cardsGrid.innerHTML = "";
   if (data.length === 0) {
@@ -70,63 +100,76 @@ function renderCards(data) {
   });
 }
 
-function showModal(res) {
-  // --- Populate metadata ---
-  modalTitle.textContent   = res.title       || "Untitled";
-  modalRef.textContent     = res.id          || "N/A";
-  modalAuthor.textContent  = res.author      || "Unknown";
+// === Show modal ===
+function populateMeta(res) {
+  modalTitle.textContent   = res.title || "Untitled";
+  modalRef.textContent     = res.id || "N/A";
+  modalAuthor.textContent  = res.author || "Unknown";
   modalDate.textContent    = res.dateAdopted || "N/A";
-  modalStatus.textContent  = res.status      || "N/A";
+  modalStatus.textContent  = res.status || "N/A";
 
-  // --- Apply status class ---
   modalStatus.className = "";
   const statusMap = {
-    approved:    "status-approved",
-    pending:     "status-pending",
-    deferred:    "status-deferred",
+    approved: "status-approved",
+    pending: "status-pending",
+    deferred: "status-deferred",
     "in committee": "status-incommittee"
   };
   const statusKey = res.status?.toLowerCase();
   if (statusMap[statusKey]) {
     modalStatus.classList.add(statusMap[statusKey]);
   }
+}
 
-  // --- Render preview ---
+function populatePdf(res) {
   const previewContainer = document.getElementById("modalPreview");
   previewContainer.innerHTML = "";
 
+  const pdfLink = document.getElementById("pdfLink");
+
   if (res.docUrl?.trim()) {
-    // Embed PDF inline
-    const embed = document.createElement("embed");
-    embed.id = "pdfEmbed";
-    embed.className = "pdf-preview";
-    embed.src = res.docUrl;
-    embed.type = "application/pdf";
-    embed.width = "100%";
-    embed.height = "500px";
-
-    // Fallback link
-    const linkP = document.createElement("p");
-    linkP.className = "preview-link";
-    const link = document.createElement("a");
-    link.href = res.docUrl;
-    link.target = "_blank";
-    link.textContent = "Open full document";
-
-    linkP.appendChild(link);
-    previewContainer.append(embed, linkP);
+    renderPDF(res.docUrl); // PDF.js render
+    pdfLink.href = res.docUrl;
+    pdfLink.textContent = "Open full document";
   } else {
-    const noPreview = document.createElement("p");
-    noPreview.className = "no-preview";
-    noPreview.textContent = "No document preview available.";
-    previewContainer.appendChild(noPreview);
+    previewContainer.innerHTML = "<p class='no-preview'>No document preview available.</p>";
+    pdfLink.href = "#";
+    pdfLink.textContent = "";
+  }
+}
+
+function clearPDFPreview() {
+  const container = document.getElementById("modalPreview");
+  if (container) {
+    container.innerHTML = ""; // tanggalin lahat ng dating canvas/content
+  }
+}
+
+function showModal(res) {
+  // clear muna bago mag-render ng bago
+  clearPDFPreview();
+
+  populateMeta(res);
+
+  const pdfLink = document.getElementById("pdfLink");
+  if (res.docUrl?.trim()) {
+    // optional: add cache-buster para siguradong fresh
+    const freshUrl = res.docUrl + "?t=" + Date.now();
+    renderPDF(freshUrl);
+    pdfLink.href = res.docUrl;
+    pdfLink.textContent = "Open full document";
+  } else {
+    document.getElementById("modalPreview").innerHTML =
+      "<p class='no-preview'>No document preview available.</p>";
+    pdfLink.href = "#";
+    pdfLink.textContent = "";
   }
 
-  // --- Show modal ---
   modal.style.display = "flex";
   modal.classList.add("show");
 }
 
+// === Close modal ===
 function closeModal() {
   modal.classList.remove("show");
   modal.classList.add("hide");
@@ -134,54 +177,48 @@ function closeModal() {
   modal.addEventListener("animationend", () => {
     modal.style.display = "none";
     modal.classList.remove("hide");
-    // clear iframe src para hindi naka-load sa background
-    const pdfFrame = document.querySelector("#modalPreview iframe");
-    if (pdfFrame) pdfFrame.src = "";
+    const canvas = document.getElementById("pdfCanvas");
+    if (canvas) canvas.remove(); // clear canvas
   }, { once: true });
 }
 
-// --- Event bindings ---
+// === Event bindings ===
 closeBtn.addEventListener("click", closeModal);
 window.addEventListener("click", e => {
   if (e.target === modal) closeModal();
 });
 
-// Search logic
+// === Search logic ===
 searchInput.addEventListener("input", () => {
   const query = searchInput.value.toLowerCase();
   const filtered = resolutions.filter(res =>
     res.title.toLowerCase().includes(query) ||
     res.author.toLowerCase().includes(query) ||
     res.status.toLowerCase().includes(query) ||
-    res.id.toLowerCase().includes(query) ||       
-    res.docUrl.toLowerCase().includes(query)      
+    res.id.toLowerCase().includes(query) ||
+    res.docUrl.toLowerCase().includes(query)
   );
   renderCards(filtered);
 });
 
-// Clear button
+// === Clear button ===
 clearBtn.addEventListener("click", () => {
   searchInput.value = "";
   renderCards(resolutions);
 });
 
-// Init
+// === Init ===
 loadResolutions();
 
-// hanapin yung button
+// === Scroll top button ===
 const scrollBtn = document.querySelector(".scroll-top");
-
-// toggle visibility kapag nag-scroll
 window.addEventListener("scroll", () => {
-  if (window.scrollY > 150) { 
+  if (window.scrollY > 150) {
     scrollBtn.classList.add("show");
   } else {
     scrollBtn.classList.remove("show");
   }
 });
-
-// smooth scroll pabalik sa taas kapag na-click
 scrollBtn.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
-
