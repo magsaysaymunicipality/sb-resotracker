@@ -29,8 +29,10 @@ async function loadResolutions() {
   const currentYear = now.getFullYear();
   let found = false;
 
-  // declare once
-  const baseUrl = "https://magsaysaymunicipality.github.io/sb-resotracker";
+// dynamic base URL: origin + repo folder kung meron
+const pathParts = window.location.pathname.split("/").filter(Boolean);
+const repoName = pathParts.length > 0 && pathParts[0] !== "index.html" ? "/" + pathParts[0] : "";
+const baseUrl = window.location.origin + repoName;
 
   for (let year = currentYear; year >= 2020 && !found; year--) {
     for (let i = 0; i < months.length && !found; i++) {
