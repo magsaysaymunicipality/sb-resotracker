@@ -1,0 +1,17 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "name": "Alibog" }, "geometry": { "type": "Point", "coordinates": [121.22681, 12.22795] } },
+    { "type": "Feature", "properties": { "name": "Caguray" }, "geometry": { "type": "Point", "coordinates": [121.11548, 12.28398] } },
+    { "type": "Feature", "properties": { "name": "Calawag" }, "geometry": { "type": "Point", "coordinates": [121.18627, 12.28042] } },
+    { "type": "Feature", "properties": { "name": "Gapasan" }, "geometry": { "type": "Point", "coordinates": [121.19269, 12.33838] } },
+    { "type": "Feature", "properties": { "name": "Laste" }, "geometry": { "type": "Point", "coordinates": [121.18618, 12.25630] } },
+    { "type": "Feature", "properties": { "name": "Lourdes" }, "geometry": { "type": "Point", "coordinates": [121.17572, 12.34052] } },
+    { "type": "Feature", "properties": { "name": "Nicolas" }, "geometry": { "type": "Point", "coordinates": [121.20279, 12.30501] } },
+    { "type": "Feature", "properties": { "name": "Paclolo" }, "geometry": { "type": "Point", "coordinates": [121.18206, 12.38015] } },
+    { "type": "Feature", "properties": { "name": "Poblacion" }, "geometry": { "type": "Point", "coordinates": [121.14608, 12.31198] } },
+    { "type": "Feature", "properties": { "name": "Purnaga" }, "geometry": { "type": "Point", "coordinates": [121.19292, 12.36743] } },
+    { "type": "Feature", "properties": { "name": "Santa Teresa" }, "geometry": { "type": "Point", "coordinates": [121.11257, 12.25111] } },
+    { "type": "Feature", "properties": { "name": "Sibalat" }, "geometry": { "type": "Point", "coordinates": [121.17782, 12.26854] } }
+  ]
+}
