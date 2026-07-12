@@ -33,7 +33,9 @@ async function loadResolutions() {
     for (let i = 0; i < months.length && !found; i++) {
       const monthFile = months[i];
       try {
-        const response = await fetch(`data/${year}/${monthFile}.json`);
+        const baseUrl = "https://magsaysaymunicipality.github.io/sb-resotracker";
+        const response = await fetch(`${baseUrl}/data/${year}/${monthFile}.json`);
+
         if (!response.ok) continue;
 
         const data = await response.json();
