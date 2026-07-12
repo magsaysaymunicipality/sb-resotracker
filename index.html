@@ -64,16 +64,37 @@
   <p>&copy; 2026 Municipality of Magsaysay. All rights reserved.</p>
 </footer>
 
-<!-- PDF.js ES Module build -->
 <script type="module">
   import * as pdfjsLib from './js/pdf.mjs';
   pdfjsLib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.mjs';
   window.pdfjsLib = pdfjsLib;
+
+  // expose renderPDF globally
+  window.renderPDF = function(url) {
+    const container = document.getElementById("modalPreview");
+    container.innerHTML = "";
+
+    pdfjsLib.getDocument({ url }).promise.then(pdf => {
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        pdf.getPage(pageNum).then(page => {
+          const viewport = page.getViewport({ scale: 0.8 });
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          container.appendChild(canvas);
+          page.render({ canvasContext: ctx, viewport });
+        });
+      }
+    }).catch(err => {
+      container.innerHTML = `<p class="no-preview">Cannot preview PDF: ${err.message}</p>`;
+    });
+  };
 </script>
 
 <!-- Scroll top button -->
 <button class="scroll-top">Top</button>
 
-<script type="module" src="js/directory.js"></script>
+<script type="module" src="/js/directory.js"></script>
 </body>
 </html>

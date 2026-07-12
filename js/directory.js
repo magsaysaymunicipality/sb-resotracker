@@ -18,28 +18,39 @@ const modalStatus = document.getElementById("modalStatus");
 let resolutions = [];
 
 // === PDF.js Renderer ===
-function renderPDF(url) {
+function renderPDFLazy(url) {
   const container = document.getElementById("modalPreview");
-  container.innerHTML = ""; // clear old content
+  container.innerHTML = "";
 
-  pdfjsLib.getDocument({ url, disableStream: true }).promise.then(pdf => {
-    // loop through all pages
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      pdf.getPage(pageNum).then(page => {
-        const viewport = page.getViewport({ scale: 1.0 });
+  pdfjsLib.getDocument({ url }).promise.then(pdf => {
+    let currentPage = 1;
 
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+    // render first page agad
+    renderPage(pdf, currentPage, container);
 
-        container.appendChild(canvas);
-
-        page.render({ canvasContext: ctx, viewport });
-      });
-    }
+    // habang nag-scroll, load next page
+    container.addEventListener("scroll", () => {
+      const nearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
+      if (nearBottom && currentPage < pdf.numPages) {
+        currentPage++;
+        renderPage(pdf, currentPage, container);
+      }
+    });
   }).catch(err => {
     container.innerHTML = `<p class="no-preview">Cannot preview PDF: ${err.message}</p>`;
+  });
+}
+
+function renderPage(pdf, pageNum, container) {
+  pdf.getPage(pageNum).then(page => {
+    const viewport = page.getViewport({ scale: 0.8 }); // mas maliit para mobile
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    container.appendChild(canvas);
+
+    page.render({ canvasContext: ctx, viewport });
   });
 }
 
