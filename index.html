@@ -65,8 +65,8 @@
 </footer>
 
 <script type="module">
-  import * as pdfjsLib from 'js/pdf.mjs';
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdf.worker.mjs';
+  import * as pdfjsLib from './js/pdf.mjs';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.mjs';
   window.pdfjsLib = pdfjsLib;
 
   // expose renderPDF globally
@@ -75,21 +75,39 @@
     container.innerHTML = "";
 
     pdfjsLib.getDocument({ url }).promise.then(pdf => {
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        pdf.getPage(pageNum).then(page => {
-          const viewport = page.getViewport({ scale: 0.8 });
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-          container.appendChild(canvas);
-          page.render({ canvasContext: ctx, viewport });
-        });
+      let currentPage = 1;
+
+      // preload ng first 2 pages para hindi mukhang kulang
+      for (let i = 0; i < 2 && currentPage <= pdf.numPages; i++) {
+        renderPage(pdf, currentPage, container);
+        currentPage++;
       }
+
+      // habang nag-scroll, load next page
+      container.addEventListener("scroll", () => {
+        const nearBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
+        if (nearBottom && currentPage <= pdf.numPages) {
+          renderPage(pdf, currentPage, container);
+          currentPage++;
+        }
+      });
     }).catch(err => {
       container.innerHTML = `<p class="no-preview">Cannot preview PDF: ${err.message}</p>`;
     });
   };
+
+  function renderPage(pdf, pageNum, container) {
+    pdf.getPage(pageNum).then(page => {
+      const viewport = page.getViewport({ scale: 0.8 }); // mas maliit para mobile
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      container.appendChild(canvas);
+
+      page.render({ canvasContext: ctx, viewport });
+    });
+  }
 </script>
 
 <!-- Scroll top button -->
