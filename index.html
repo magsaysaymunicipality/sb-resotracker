@@ -65,8 +65,8 @@
 </footer>
 
 <script type="module">
-  import * as pdfjsLib from './js/pdf.mjs';
-  pdfjsLib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.mjs';
+  import * as pdfjsLib from 'js/pdf.mjs';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdf.worker.mjs';
   window.pdfjsLib = pdfjsLib;
 
   // expose renderPDF globally
@@ -95,6 +95,6 @@
 <!-- Scroll top button -->
 <button class="scroll-top">Top</button>
 
-<script type="module" src="/js/directory.js"></script>
+<script type="module" src="js/directory.js"></script>
 </body>
 </html>
