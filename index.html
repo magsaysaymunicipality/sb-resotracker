@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<header>
+  <nav>
+    <div class="menu-controls">
+      <img src="images/logo2.jpg" alt="Logo" class="logo">
+      <span class="tagline">Digitizing Governance for Better Service</span>
+    </div>
+  </nav>
+</header>
+
+<main>
+<section id="directory-section" class="dashboard-section">
+  <h2 class="section-title">LEGISLATIVE INFORMATION SYSTEM</h2> 
+
+  <!-- 🔎 Search bar --> 
+  <div class="directory-search">
+    <input type="text" id="searchInput" placeholder="Search resolutions...">
+    <button class="clear-btn" type="button">Clear</button> 
+  </div> 
+
+  <!-- Cards grid -->
+  <div id="cardsGrid" class="cards-grid"></div>
+</section>
+
+<!-- Modal -->
+<div id="infoModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <p>Reference #: <span id="modalRef"></span></p>
+    <p>Author: <span id="modalAuthor"></span></p>
+    <p>Date Adopted: <span id="modalDate"></span></p>
+    <p>Status: <span id="modalStatus"></span></p>
+    <div id="modalPreview"></div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <p>&copy; 2026 Municipality of Magsaysay. All rights reserved.</p>
+</footer>
+
+<!-- Scroll top button -->
+<button class="scroll-top">Top</button>
+
+<script type="module" src="js/directory.js"></script>
+</body>
+</html>
