@@ -71,26 +71,31 @@ function renderCards(data) {
 }
 
 function showModal(res) {
-  modalTitle.textContent = res.title || "Untitled";
-  modalRef.textContent = res.id || "N/A";
-  modalAuthor.textContent = res.author || "Unknown";
-  modalDate.textContent = res.dateAdopted || "N/A";
-  modalStatus.textContent = res.status || "N/A";
+  // --- Populate metadata ---
+  modalTitle.textContent   = res.title       || "Untitled";
+  modalRef.textContent     = res.id          || "N/A";
+  modalAuthor.textContent  = res.author      || "Unknown";
+  modalDate.textContent    = res.dateAdopted || "N/A";
+  modalStatus.textContent  = res.status      || "N/A";
 
+  // --- Apply status class ---
   modalStatus.className = "";
   const statusMap = {
-    "approved": "status-approved",
-    "pending": "status-pending",
-    "deferred": "status-deferred",
+    approved:    "status-approved",
+    pending:     "status-pending",
+    deferred:    "status-deferred",
     "in committee": "status-incommittee"
   };
-  const statusClass = statusMap[res.status?.toLowerCase()];
-  if (statusClass) modalStatus.classList.add(statusClass);
+  const statusKey = res.status?.toLowerCase();
+  if (statusMap[statusKey]) {
+    modalStatus.classList.add(statusMap[statusKey]);
+  }
 
+  // --- Render preview ---
   const previewContainer = document.getElementById("modalPreview");
   previewContainer.innerHTML = "";
 
-  if (res.docUrl && res.docUrl.trim() !== "") {
+  if (res.docUrl?.trim()) {
     const iframe = document.createElement("iframe");
     iframe.className = "pdf-preview";
     iframe.src = res.docUrl;
@@ -98,14 +103,14 @@ function showModal(res) {
 
     const linkP = document.createElement("p");
     linkP.className = "preview-link";
+
     const link = document.createElement("a");
     link.href = res.docUrl;
     link.target = "_blank";
     link.textContent = "Open full document";
 
     linkP.appendChild(link);
-    previewContainer.appendChild(iframe);
-    previewContainer.appendChild(linkP);
+    previewContainer.append(iframe, linkP);
   } else {
     const noPreview = document.createElement("p");
     noPreview.className = "no-preview";
@@ -113,6 +118,7 @@ function showModal(res) {
     previewContainer.appendChild(noPreview);
   }
 
+  // --- Show modal ---
   modal.style.display = "flex";
   modal.classList.add("show");
 }
@@ -120,12 +126,17 @@ function showModal(res) {
 function closeModal() {
   modal.classList.remove("show");
   modal.classList.add("hide");
+
   modal.addEventListener("animationend", () => {
     modal.style.display = "none";
     modal.classList.remove("hide");
+    // clear iframe src para hindi naka-load sa background
+    const pdfFrame = document.querySelector("#modalPreview iframe");
+    if (pdfFrame) pdfFrame.src = "";
   }, { once: true });
 }
 
+// --- Event bindings ---
 closeBtn.addEventListener("click", closeModal);
 window.addEventListener("click", e => {
   if (e.target === modal) closeModal();

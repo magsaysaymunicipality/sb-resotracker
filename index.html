@@ -34,13 +34,24 @@
 <!-- Modal -->
 <div id="infoModal" class="modal">
   <div class="modal-content">
+    <!-- Close button -->
     <span class="close">&times;</span>
+
+    <!-- Header -->
     <h2 id="modalTitle"></h2>
-    <p>Reference #: <span id="modalRef"></span></p>
-    <p>Author: <span id="modalAuthor"></span></p>
-    <p>Date Adopted: <span id="modalDate"></span></p>
-    <p>Status: <span id="modalStatus"></span></p>
-    <div id="modalPreview"></div>
+
+    <!-- Metadata -->
+    <div class="modal-meta">
+      <p><strong>Reference #:</strong> <span id="modalRef"></span></p>
+      <p><strong>Author:</strong> <span id="modalAuthor"></span></p>
+      <p><strong>Date Adopted:</strong> <span id="modalDate"></span></p>
+      <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+    </div>
+
+    <!-- PDF Preview -->
+    <div id="modalPreview">
+      <iframe id="pdfFrame" src="" width="100%" height="500px" style="border:none;"></iframe>
+    </div>
   </div>
 </div>
 
