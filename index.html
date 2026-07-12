@@ -50,7 +50,13 @@
 
     <!-- PDF Preview -->
     <div id="modalPreview">
-      <iframe id="pdfFrame" src="" width="100%" height="500px" style="border:none;"></iframe>
+      <!-- Option A: Embed (better for mobile) -->
+      <embed id="pdfEmbed" src="" type="application/pdf" width="100%" height="500px" style="border:none;">
+
+      <!-- Fallback link -->
+      <p class="preview-link">
+        <a id="pdfLink" href="#" target="_blank">Open full document</a>
+      </p>
     </div>
   </div>
 </div>

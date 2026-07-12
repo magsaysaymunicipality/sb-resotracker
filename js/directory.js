@@ -96,21 +96,25 @@ function showModal(res) {
   previewContainer.innerHTML = "";
 
   if (res.docUrl?.trim()) {
-    const iframe = document.createElement("iframe");
-    iframe.className = "pdf-preview";
-    iframe.src = res.docUrl;
-    iframe.title = "Document Preview";
+    // Embed PDF inline
+    const embed = document.createElement("embed");
+    embed.id = "pdfEmbed";
+    embed.className = "pdf-preview";
+    embed.src = res.docUrl;
+    embed.type = "application/pdf";
+    embed.width = "100%";
+    embed.height = "500px";
 
+    // Fallback link
     const linkP = document.createElement("p");
     linkP.className = "preview-link";
-
     const link = document.createElement("a");
     link.href = res.docUrl;
     link.target = "_blank";
     link.textContent = "Open full document";
 
     linkP.appendChild(link);
-    previewContainer.append(iframe, linkP);
+    previewContainer.append(embed, linkP);
   } else {
     const noPreview = document.createElement("p");
     noPreview.className = "no-preview";
