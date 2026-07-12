@@ -29,24 +29,31 @@ async function loadResolutions() {
   const currentYear = now.getFullYear();
   let found = false;
 
+  // declare once
+  const baseUrl = "https://magsaysaymunicipality.github.io/sb-resotracker";
+
   for (let year = currentYear; year >= 2020 && !found; year--) {
     for (let i = 0; i < months.length && !found; i++) {
       const monthFile = months[i];
       try {
-        const baseUrl = "https://magsaysaymunicipality.github.io/sb-resotracker";
         const response = await fetch(`${baseUrl}/data/${year}/${monthFile}.json`);
 
-        if (!response.ok) continue;
+        if (!response.ok) {
+          console.warn(`File not found: ${year}/${monthFile}.json`);
+          continue;
+        }
 
         const data = await response.json();
-        if (data.length > 0) {
+        if (Array.isArray(data) && data.length > 0) {
           resolutions = data;
           renderCards(resolutions);
           console.log(`Loaded ${year}/${monthFile}.json`);
           found = true;
+        } else {
+          console.warn(`Empty JSON: ${year}/${monthFile}.json`);
         }
       } catch (err) {
-        console.warn(`Error loading ${year}/${monthFile}:`, err);
+        console.error(`Error loading ${year}/${monthFile}.json:`, err);
       }
     }
   }
