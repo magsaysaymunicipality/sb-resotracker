@@ -40,7 +40,7 @@ main { padding: 20px; font-size: 1rem; }
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .section-title {
-  text-align: center; margin-top: 8px;
+  text-align: center; margin-top: 5px;
   font-size: 1.4rem; color: #333; font-weight: bold;
 }
 
@@ -279,7 +279,7 @@ footer {
   .cards-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 columns sa tablet */
-    gap: 10px;
+    gap: 12px;
     justify-items: center;
   }
   .res-card {
@@ -309,15 +309,14 @@ footer {
 @media (max-width: 480px) {
   header { font-size: 0.75rem; padding: 4px 8px; }
   .tagline { font-size: 0.75rem; }
-  .section-title { font-size: 0.95rem; }
+  .section-title { font-size: 0.95rem; margin-top: 0; }
   footer { font-size: 0.7rem; padding: 4px; }
 
   /* Cards Grid */
   .cards-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2 columns sa mobile */
-    gap: 12px;
-    justify-items: center;
+    gap: 8px;
   }
   .res-card {
     max-width: 100%;
