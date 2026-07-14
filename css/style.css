@@ -134,7 +134,7 @@ table tr:nth-child(odd) { background: #f9f9f9; }
 /* === Footer === */
 footer {
   background: #004d40; color: #fff;
-  text-align: center; padding: 12px;
+  text-align: center; 
   font-size: 0.9rem; font-weight: 500;
   border-top: 2px solid #00695c;
   display: flex; align-items: center; justify-content: center;

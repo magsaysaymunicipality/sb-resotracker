@@ -85,7 +85,13 @@ function renderCards(data) {
   });
 }
 
-// === Show modal ===
+// === Clear PDF Preview ===
+function clearPDFPreview() {
+  const container = document.getElementById("modalPreview");
+  if (container) container.innerHTML = "";
+}
+
+// === Populate metadata ===
 function populateMeta(res) {
   modalTitle.textContent   = res.title || "Untitled";
   modalRef.textContent     = res.id || "N/A";
@@ -101,47 +107,41 @@ function populateMeta(res) {
     "in committee": "status-incommittee"
   };
   const statusKey = res.status?.toLowerCase();
-  if (statusMap[statusKey]) {
-    modalStatus.classList.add(statusMap[statusKey]);
-  }
+  if (statusMap[statusKey]) modalStatus.classList.add(statusMap[statusKey]);
 }
 
-function populatePdf(res) {
+// === Render PDF with cache (URL only) ===
+function renderPDFWithCache(url) {
   const previewContainer = document.getElementById("modalPreview");
   previewContainer.innerHTML = "";
 
-  const pdfLink = document.getElementById("pdfLink");
+  if (!url) {
+    previewContainer.innerHTML = "<p class='no-preview'>No document URL provided.</p>";
+    return;
+  }
 
-  if (res.docUrl?.trim()) {
-    renderPDF(res.docUrl); // PDF.js render
-    pdfLink.href = res.docUrl;
-    pdfLink.textContent = "Open full document";
+  // simpleng flag lang
+  if (!window.cachedData) window.cachedData = {};
+  if (window.cachedData[url]) {
   } else {
-    previewContainer.innerHTML = "<p class='no-preview'>No document preview available.</p>";
-    pdfLink.href = "#";
-    pdfLink.textContent = "";
+    window.cachedData[url] = true;
   }
+
+  // laging URL string ang ipasa
+  renderPDF(url);
 }
 
-function clearPDFPreview() {
-  const container = document.getElementById("modalPreview");
-  if (container) {
-    container.innerHTML = ""; // tanggalin lahat ng dating canvas/content
-  }
-}
-
+// === Show modal ===
 function showModal(res) {
-  // clear muna bago mag-render ng bago
   clearPDFPreview();
-
   populateMeta(res);
 
   const pdfLink = document.getElementById("pdfLink");
-  if (res.docUrl?.trim()) {
-    // optional: add cache-buster para siguradong fresh
-    const freshUrl = res.docUrl + "?t=" + Date.now();
-    renderPDF(freshUrl);
-    pdfLink.href = res.docUrl;
+  const docUrl = res.docUrl?.trim();
+
+  if (docUrl) {
+    renderPDFWithCache(docUrl);
+    pdfLink.href = docUrl;
     pdfLink.textContent = "Open full document";
   } else {
     document.getElementById("modalPreview").innerHTML =
@@ -176,13 +176,13 @@ window.addEventListener("click", e => {
 // === Search logic ===
 searchInput.addEventListener("input", () => {
   const query = searchInput.value.toLowerCase();
-  const filtered = resolutions.filter(res =>
-    res.title.toLowerCase().includes(query) ||
-    res.author.toLowerCase().includes(query) ||
-    res.status.toLowerCase().includes(query) ||
-    res.id.toLowerCase().includes(query) ||
-    res.docUrl.toLowerCase().includes(query)
-  );
+const filtered = resolutions.filter(res =>
+  (res.title || "").toLowerCase().includes(query) ||
+  (res.author || "").toLowerCase().includes(query) ||
+  (res.status || "").toLowerCase().includes(query) ||
+  (res.id || "").toLowerCase().includes(query) ||
+  (res.docUrl || "").toLowerCase().includes(query)
+);
   renderCards(filtered);
 });
 
