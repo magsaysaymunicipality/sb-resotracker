@@ -111,7 +111,7 @@ function populateMeta(res) {
 }
 
 // === Render PDF with cache-busting ===
-function renderPDFWithCache(url) {
+async function renderPDFWithCache(url) {
   const previewContainer = document.getElementById("modalPreview");
   previewContainer.innerHTML = "";
 
@@ -120,11 +120,21 @@ function renderPDFWithCache(url) {
     return;
   }
 
-  // dagdag ng timestamp query para unique ang URL bawat bukas
   const bustUrl = url + (url.includes("?") ? "&" : "?") + "t=" + Date.now();
 
-  // laging ipasa ang bustUrl para fresh render
-  renderPDF(bustUrl);
+  // Load PDF
+  const pdf = await pdfjsLib.getDocument(bustUrl).promise;
+
+  // Render only first page
+  const page = await pdf.getPage(1);
+  const viewport = page.getViewport({ scale: 1.2 });
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+
+  await page.render({ canvasContext: context, viewport }).promise;
+  previewContainer.appendChild(canvas);
 }
 
 // === Show modal ===
