@@ -110,7 +110,7 @@ function populateMeta(res) {
   if (statusMap[statusKey]) modalStatus.classList.add(statusMap[statusKey]);
 }
 
-// === Render PDF with cache (URL only) ===
+// === Render PDF with cache-busting ===
 function renderPDFWithCache(url) {
   const previewContainer = document.getElementById("modalPreview");
   previewContainer.innerHTML = "";
@@ -120,37 +120,37 @@ function renderPDFWithCache(url) {
     return;
   }
 
-  // simpleng flag lang
-  if (!window.cachedData) window.cachedData = {};
-  if (window.cachedData[url]) {
-  } else {
-    window.cachedData[url] = true;
-  }
+  // dagdag ng timestamp query para unique ang URL bawat bukas
+  const bustUrl = url + (url.includes("?") ? "&" : "?") + "t=" + Date.now();
 
-  // laging URL string ang ipasa
-  renderPDF(url);
+  // laging ipasa ang bustUrl para fresh render
+  renderPDF(bustUrl);
 }
 
 // === Show modal ===
 function showModal(res) {
-  clearPDFPreview();
+  const previewContainer = document.getElementById("modalPreview");
+  const pdfLink = document.getElementById("pdfLink");
+
+  // populate metadata
   populateMeta(res);
 
-  const pdfLink = document.getElementById("pdfLink");
-  const docUrl = res.docUrl?.trim();
-
+  const docUrl = res.docUrl;
   if (docUrl) {
-    renderPDFWithCache(docUrl);
-    pdfLink.href = docUrl;
+    const bustUrl = docUrl + (docUrl.includes("?") ? "&" : "?") + "t=" + Date.now();
+
+    renderPDFWithCache(bustUrl);
+
+    pdfLink.href = bustUrl;
     pdfLink.textContent = "Open full document";
+    pdfLink.target = "_blank";
   } else {
-    document.getElementById("modalPreview").innerHTML =
-      "<p class='no-preview'>No document preview available.</p>";
-    pdfLink.href = "#";
-    pdfLink.textContent = "";
+    previewContainer.innerHTML = "<p class='no-preview'>No document available.</p>";
+    pdfLink.removeAttribute("href");
   }
 
-  modal.style.display = "flex";
+  // 👉 siguraduhin na lalabas ang modal
+  modal.style.display = "block";
   modal.classList.add("show");
 }
 
